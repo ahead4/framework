@@ -23,7 +23,7 @@ class JobProcessed
     /**
      * The worker options.
      * 
-     * @var \Illuminate\Queue\WorkerOptions
+     * @var \Illuminate\Queue\WorkerOptions|null
      */
     public $options;
 
@@ -32,10 +32,10 @@ class JobProcessed
      *
      * @param  string  $connectionName
      * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  \Illuminate\Queue\WorkerOptions $options
+     * @param  \Illuminate\Queue\WorkerOptions|null $options
      * @return void
      */
-    public function __construct($connectionName, $job, WorkerOptions $options)
+    public function __construct($connectionName, $job, WorkerOptions $options = null)
     {
         $this->job = $job;
         $this->connectionName = $connectionName;
