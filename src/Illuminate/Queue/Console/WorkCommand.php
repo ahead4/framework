@@ -20,6 +20,7 @@ class WorkCommand extends Command
      */
     protected $signature = 'queue:work
                             {connection? : The name of the queue connection to work}
+                            {--id= : A unique ID used to track the command execution}
                             {--queue= : The names of the queues to work}
                             {--daemon : Run the worker in daemon mode (Deprecated)}
                             {--once : Only process the next job on the queue}
@@ -110,9 +111,13 @@ class WorkCommand extends Command
     protected function gatherWorkerOptions()
     {
         return new WorkerOptions(
-            $this->option('delay'), $this->option('memory'),
-            $this->option('timeout'), $this->option('sleep'),
-            $this->option('tries'), $this->option('force')
+            $this->option('id'),
+            $this->option('delay'),
+            $this->option('memory'),
+            $this->option('timeout'),
+            $this->option('sleep'),
+            $this->option('tries'),
+            $this->option('force')
         );
     }
 

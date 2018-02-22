@@ -5,6 +5,13 @@ namespace Illuminate\Queue;
 class WorkerOptions
 {
     /**
+     * A unique ID used to track the command execution
+     * 
+     * @var string|null
+     */
+    public $id;
+
+    /**
      * The number of seconds before a released job will be available.
      *
      * @var int
@@ -49,6 +56,7 @@ class WorkerOptions
     /**
      * Create a new worker options instance.
      *
+     * @param  string|null $id
      * @param  int  $delay
      * @param  int  $memory
      * @param  int  $timeout
@@ -56,8 +64,9 @@ class WorkerOptions
      * @param  int  $maxTries
      * @param  bool  $force
      */
-    public function __construct($delay = 0, $memory = 128, $timeout = 60, $sleep = 3, $maxTries = 0, $force = false)
+    public function __construct($id = null, $delay = 0, $memory = 128, $timeout = 60, $sleep = 3, $maxTries = 0, $force = false)
     {
+        $this->id = $id;
         $this->delay = $delay;
         $this->sleep = $sleep;
         $this->force = $force;

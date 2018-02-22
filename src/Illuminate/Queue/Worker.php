@@ -305,7 +305,7 @@ class Worker
             // First we will raise the before job event and determine if the job has already ran
             // over the its maximum attempt limit, which could primarily happen if the job is
             // continually timing out and not actually throwing any exceptions from itself.
-            $this->raiseBeforeJobEvent($connectionName, $job);
+            $this->raiseBeforeJobEvent($connectionName, $job, $options);
 
             $this->markJobAsFailedIfAlreadyExceedsMaxAttempts(
                 $connectionName, $job, (int) $options->maxTries
@@ -316,7 +316,7 @@ class Worker
             // proper events will be fired to let any listeners know this job has finished.
             $job->fire();
 
-            $this->raiseAfterJobEvent($connectionName, $job);
+            $this->raiseAfterJobEvent($connectionName, $job, $options);
         } catch (Exception $e) {
             $this->handleJobException($connectionName, $job, $options, $e);
         } catch (Throwable $e) {
@@ -425,12 +425,13 @@ class Worker
      *
      * @param  string  $connectionName
      * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  \Illuminate\Queue\WorkerOptions  $options
      * @return void
      */
-    protected function raiseBeforeJobEvent($connectionName, $job)
+    protected function raiseBeforeJobEvent($connectionName, $job, WorkerOptions $options)
     {
         $this->events->fire(new Events\JobProcessing(
-            $connectionName, $job
+            $connectionName, $job, $options
         ));
     }
 
@@ -439,12 +440,13 @@ class Worker
      *
      * @param  string  $connectionName
      * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  \Illuminate\Queue\WorkerOptions  $options
      * @return void
      */
-    protected function raiseAfterJobEvent($connectionName, $job)
+    protected function raiseAfterJobEvent($connectionName, $job, WorkerOptions $options)
     {
         $this->events->fire(new Events\JobProcessed(
-            $connectionName, $job
+            $connectionName, $job, $options
         ));
     }
 

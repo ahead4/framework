@@ -52,6 +52,13 @@ class Listener
     protected $outputHandler;
 
     /**
+     * The command execution id.
+     * 
+     * @var string
+     */
+    protected $id;
+
+    /**
      * Create a new queue listener.
      *
      * @param  string  $commandPath
@@ -70,7 +77,7 @@ class Listener
      */
     protected function buildCommandTemplate()
     {
-        $command = 'queue:work %s --once --queue=%s --delay=%s --memory=%s --sleep=%s --tries=%s';
+        $command = 'queue:work %s --once --id=%s --queue=%s --delay=%s --memory=%s --sleep=%s --tries=%s';
 
         return "{$this->phpBinary()} {$this->artisanBinary()} {$command}";
     }
@@ -116,6 +123,18 @@ class Listener
         }
     }
 
+    protected function generateId()
+    {
+        $this->id = uniqid();
+
+        return $this->id;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
     /**
      * Create a new Symfony process for the worker.
      *
@@ -135,11 +154,14 @@ class Listener
             $command = $this->addEnvironment($command, $options);
         }
 
+        // Generate a unique ID to reference the command execution.
+        $id = $this->generateId();
+
         // Next, we will just format out the worker commands with all of the various
         // options available for the command. This will produce the final command
         // line that we will pass into a Symfony process object for processing.
         $command = $this->formatCommand(
-            $command, $connection, $queue, $options
+            $command, $connection, $id, $queue, $options
         );
 
         return new Process(
@@ -164,15 +186,17 @@ class Listener
      *
      * @param  string  $command
      * @param  string  $connection
+     * @param  string  $id
      * @param  string  $queue
      * @param  \Illuminate\Queue\ListenerOptions  $options
      * @return string
      */
-    protected function formatCommand($command, $connection, $queue, ListenerOptions $options)
+    protected function formatCommand($command, $connection, $id, $queue, ListenerOptions $options)
     {
         return sprintf(
             $command,
             ProcessUtils::escapeArgument($connection),
+            ProcessUtils::escapeArgument($id),
             ProcessUtils::escapeArgument($queue),
             $options->delay, $options->memory,
             $options->sleep, $options->maxTries
